@@ -214,6 +214,47 @@ $app->post('/product/{pid:[0-9]+}', function (Request $request, Response $respon
 /**
  * UPDATE OBJECT.
  */
+$app->delete('/product/{pid:[0-9]+}', function (Request $request, Response $response, array $args) {
+
+    $this->logger->info("Delete a product.");
+
+
+    /** @var PDO $db */
+    $db = $this->db;
+    $statusOutput = [
+        'status' => 0
+    ];
+
+
+
+
+    /**
+     * CHECK PRODUCT EXISTS
+     */
+    $selectProductsStmt = $db->prepare("DELETE FROM products WHERE pid = :pid");
+    $selectProductsStmt->bindParam('pid', $args['pid']);
+    $selectProductsStmt->execute();
+
+    $r = $selectProductsStmt->fetch(PDO::FETCH_ASSOC);
+
+    // NEW INSERT
+    if ($selectProductsStmt->rowCount() == 0) {
+        return $response->withJson(['status' => 0, 'msg' => 'unknown'],404);
+    }
+
+
+    /**
+     * CHECK DATA AND MERGE RESULTS
+     */
+
+    // Render.
+    return $response->withJson($statusOutput);
+});
+
+
+/**
+ * UPDATE OBJECT.
+ */
 $app->get('/products/erase', function (Request $request, Response $response, array $args) {
 
     $this->logger->info("Erase all products.");
